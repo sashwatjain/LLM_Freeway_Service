@@ -1,0 +1,36 @@
+# Environment files
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Generated files
+*.xlsx
+provider_report_*.txt
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+.coverage_measurements
+coverage/
