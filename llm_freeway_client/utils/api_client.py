@@ -36,6 +36,11 @@ class FreewayClient:
         resp.raise_for_status()
         return resp.json()
 
+    def stats(self) -> dict:
+        resp = self._client.get(self._url("/stats"))
+        resp.raise_for_status()
+        return resp.json()
+
     def chat(
         self,
         provider: str,

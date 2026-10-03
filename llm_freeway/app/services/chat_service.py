@@ -1,10 +1,11 @@
-from typing import Optional
+from typing import Any, Optional
 
 from app.providers.registry import registry
 from app.providers.base import BaseProvider, RateLimitError, AuthError
 from app.schemas import ChatRequest, ChatResponse, Message
 from app.services.limit_tracker import limit_tracker
 from app.services.memory_service import memory_service
+from app.services.response_utils import content_to_text
 
 
 async def chat(
@@ -14,6 +15,7 @@ async def chat(
     system_prompt: Optional[str] = None,
     memory: bool = False,
     session_id: Optional[str] = None,
+    extra_payload: Optional[dict[str, Any]] = None,
 ) -> ChatResponse:
     provider = registry.get(provider_name)
     if not provider:
@@ -38,6 +40,7 @@ async def chat(
             messages=context_messages,
             model=model,
             system_prompt=system_prompt,
+            extra_payload=extra_payload,
         )
     except Exception:
         raise
@@ -49,7 +52,9 @@ async def chat(
         assistant_content = ""
         for choice in response.choices:
             if choice.get("message", {}).get("role") == "assistant":
-                assistant_content = choice["message"].get("content", "")
+                assistant_content = content_to_text(
+                    choice["message"].get("content", "")
+                )
         if assistant_content:
             ctx.add_messages([Message(role="assistant", content=assistant_content)])
 

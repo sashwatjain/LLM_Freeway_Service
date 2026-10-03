@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 import httpx
 
 from app.config import settings
@@ -20,6 +20,7 @@ class CloudflareProvider(BaseProvider):
         messages: list[Message],
         model: str,
         system_prompt: Optional[str] = None,
+        extra_payload: Optional[dict[str, Any]] = None,
     ) -> ChatResponse:
         return await self._openai_chat(
             base_url=f"https://api.cloudflare.com/client/v4/accounts/{settings.cloudflare_account_id}/ai/v1",
@@ -27,6 +28,7 @@ class CloudflareProvider(BaseProvider):
             model=model,
             messages=messages,
             system_prompt=system_prompt,
+            extra_payload=extra_payload,
         )
 
     async def list_models(self) -> list[ModelInfo]:

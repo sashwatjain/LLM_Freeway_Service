@@ -49,5 +49,63 @@ class LimitTracker:
             "requests_remaining_today": max(0, 5000 - len(self._day_counts[key])),
         }
 
+    def get_usage_snapshot(self) -> dict:
+        all_keys = set(self._minute_counts.keys()) | set(self._day_counts.keys())
+        by_provider: dict[str, dict] = {}
+        by_model: list[dict] = []
+
+        for key in sorted(all_keys):
+            provider, model = key.split(":", 1)
+            self._prune(key, 60, self._minute_counts)
+            self._prune(key, 86400, self._day_counts)
+
+            calls_this_minute = len(self._minute_counts[key])
+            calls_today = len(self._day_counts[key])
+
+            provider_entry = by_provider.setdefault(
+                provider,
+                {
+                    "provider": provider,
+                    "calls_this_minute": 0,
+                    "calls_today": 0,
+                    "models": [],
+                },
+            )
+            provider_entry["calls_this_minute"] += calls_this_minute
+            provider_entry["calls_today"] += calls_today
+            provider_entry["models"].append(
+                {
+                    "model": model,
+                    "calls_this_minute": calls_this_minute,
+                    "calls_today": calls_today,
+                }
+            )
+            by_model.append(
+                {
+                    "provider": provider,
+                    "model": model,
+                    "calls_this_minute": calls_this_minute,
+                    "calls_today": calls_today,
+                }
+            )
+
+        provider_list = sorted(
+            by_provider.values(),
+            key=lambda item: (-item["calls_today"], item["provider"]),
+        )
+        for provider_entry in provider_list:
+            provider_entry["models"] = sorted(
+                provider_entry["models"],
+                key=lambda item: (-item["calls_today"], item["model"]),
+            )
+
+        return {
+            "providers": provider_list,
+            "models": sorted(
+                by_model,
+                key=lambda item: (-item["calls_today"], item["provider"], item["model"]),
+            ),
+        }
+
 
 limit_tracker = LimitTracker()

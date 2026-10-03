@@ -18,7 +18,7 @@ from app.providers.cerebras import CerebrasProvider
 from app.providers.kluster import KlusterProvider
 from app.providers.github import GitHubProvider
 from app.providers.nvidia import NVIDIAProvider
-from app.routers import providers, models, chat, continuechat
+from app.routers import providers, models, chat, continuechat, openai_compat, stats
 
 
 @asynccontextmanager
@@ -58,6 +58,8 @@ app.include_router(providers.router, tags=["providers"])
 app.include_router(models.router, tags=["models"])
 app.include_router(chat.router, tags=["chat"])
 app.include_router(continuechat.router, tags=["chat"])
+app.include_router(openai_compat.router, tags=["openai-compat"])
+app.include_router(stats.router, tags=["stats"])
 
 
 @app.get("/health", tags=["system"])
